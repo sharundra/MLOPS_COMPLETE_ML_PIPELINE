@@ -3,3 +3,10 @@ Building pipeline:
 2. Create one src folder and add all components (data_ingestion, preprocessing, feature_engineering, model building and evaluation python files) and run all of them individually. It would generate logs, interim data, models and reports.
 3. Add folder data, models and reports to .gitignore as we don't want them to get tracked by git.
 4. Now, git add, commit and push the current state of project
+
+
+Setting up DVC pipeline without params:
+1. Create one dvc.yaml file and add various stages to it.
+2. Initialize dvc repo (dvc init) and then run "dvc repro" to test pipeline automation
+3. Run "dvc dag" to see acyclic graph of running flow
+4. Now again do one more git push
