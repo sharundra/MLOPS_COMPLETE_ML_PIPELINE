@@ -1,0 +1,5 @@
+Building pipeline:
+1. Create a repo and clone it in local. Add "experiments" folder which would have ML notebook (.ipynb) and corresponding data spam.csv
+2. Create one src folder and add all components (data_ingestion, preprocessing, feature_engineering, model building and evaluation python files) and run all of them individually. It would generate logs, interim data, models and reports.
+3. Add folder data, models and reports to .gitignore as we don't want them to get tracked by git.
+4. Now, git add, commit and push the current state of project
