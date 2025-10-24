@@ -10,3 +10,59 @@ Setting up DVC pipeline without params:
 2. Initialize dvc repo (dvc init) and then run "dvc repro" to test pipeline automation
 3. Run "dvc dag" to see acyclic graph of running flow
 4. Now again do one more git push
+
+DVC pipeline with params:
+1. Add params.yaml file
+2. Add the params setup in src components wherever required and then update those params in params.yaml file too as shown below.
+3. Run "dvc repro" again to check the flow
+4. Push the changes to git.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+
+params.yaml setup:
+1> import yaml
+2> add func:
+def load_params(params_path: str) -> dict:
+    """Load parameters from a YAML file."""
+    try:
+        with open(params_path, 'r') as file:
+            params = yaml.safe_load(file)
+        logger.debug('Parameters retrieved from %s', params_path)
+        return params
+    except FileNotFoundError:
+        logger.error('File not found: %s', params_path)
+        raise
+    except yaml.YAMLError as e:
+        logger.error('YAML error: %s', e)
+        raise
+    except Exception as e:
+        logger.error('Unexpected error: %s', e)
+        raise
+3> Add to main():
+
+# data_ingestion
+params = load_params(params_path='params.yaml')
+test_size = params['data_ingestion']['test_size']
+
+# feature_engineering
+params = load_params(params_path='params.yaml')
+max_features = params['feature_engineering']['max_features']
+
+# model_building
+params = load_params('params.yaml')['model_building']
+
+-------------------------------------------------------------------------------
