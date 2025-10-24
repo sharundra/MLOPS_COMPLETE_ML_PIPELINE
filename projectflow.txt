@@ -42,7 +42,8 @@ Adding a remote S3 storage to DVC and pushing the data to S3 bucket:
 8. Push the data to S3 bucket -- "dvc commit" and "dvc push" 
 9. Do git push current state of code.
 
-
+Extras:
+1. Delete AWS resources -- IAM user (might require first deactivating active access key) and S3 bucket (will require first emptying the bucket then delete).
 
 
 
