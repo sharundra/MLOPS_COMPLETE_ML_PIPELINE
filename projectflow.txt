@@ -17,6 +17,16 @@ DVC pipeline with params:
 3. Run "dvc repro" again to check the flow
 4. Push the changes to git.
 
+Experiments with DVC:
+1. Do pip installation of dvclive -- "pip install dvclive"
+2. Add dvclive code block in model_evaluation.py as mentioned below.
+3. Run "dvc exp run" -- it works just as "dvc repro" (looking for dvc.yaml and running all stages of dvc pipeline sequentially) with the added functionality of tracking the experiment's specific parameters and metrics. Each run will be considered as an experiment by DVC.
+    a. Though "dvc exp run" will track params.yaml and metrics.json even without dvclive code block but dvclive simplifies the tracking as we specifically mention things to track.
+    b. A dvclive directory gets created (as we have dvclive code block) which tracks parameters and metrics there.
+4. Either run "dvc exp show" to see a comaprison of experiments OR Install "DVC" extension from VSCode extensions (if not already installed) then click on DVC logo in right side to see a visual comparison of all experiments. 
+5. (Optional) To delete a specific experiment -- "dvc exp remove {exp-name}". And to reproduce one specific previous exp -- "dvc exp apply {exp-name}".
+6. Push current state of code to git.
+
 
 
 
@@ -66,3 +76,18 @@ max_features = params['feature_engineering']['max_features']
 params = load_params('params.yaml')['model_building']
 
 -------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+dvclive code block in model_evaluation.py:
+1> import yaml and Live from dvclive:
+from dvclive import Live
+import yaml
+2> Add the load_params function and initiate "params" var in main
+3> Add below code block to main:
+with Live(save_dvc_exp=True) as live:
+    live.log_metric('accuracy', accuracy_score(y_test, y_test))
+    live.log_metric('precision', precision_score(y_test, y_test))
+    live.log_metric('recall', recall_score(y_test, y_test))
+
+    live.log_params(params)
