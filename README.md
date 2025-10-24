@@ -1,2 +1,113 @@
 # MLOPS_COMPLETE_ML_PIPELINE
-Understanding of end to end ML pipeline using DVC for experiment tracking and data versioning which uses AWS S3 
+Understanding of end to end ML pipeline using DVC for experiment tracking and data versioning which uses AWS S3.
+
+Building pipeline:
+1. Create a repo and clone it in local. Add "experiments" folder which would have ML notebook (.ipynb) and corresponding data spam.csv
+2. Create one src folder and add all components (data_ingestion, preprocessing, feature_engineering, model building and evaluation python files) and run all of them individually. It would generate logs, interim data, models and reports.
+3. Add folder data, models and reports to .gitignore as we don't want them to get tracked by git.
+4. Now, git add, commit and push the current state of project
+
+
+Setting up DVC pipeline without params:
+1. Create one dvc.yaml file and add various stages to it.
+2. Initialize dvc repo (dvc init) and then run "dvc repro" to test pipeline automation
+3. Run "dvc dag" to see acyclic graph of running flow
+4. Now again do one more git push
+
+DVC pipeline with params:
+1. Add params.yaml file
+2. Add the params setup in src components wherever required and then update those params in params.yaml file too as shown below.
+3. Run "dvc repro" again to check the flow
+4. Push the changes to git.
+
+Experiments with DVC:
+1. Do pip installation of dvclive -- "pip install dvclive"
+2. Add dvclive code block in model_evaluation.py as mentioned below.
+3. Run "dvc exp run" -- it works just as "dvc repro" (looking for dvc.yaml and running all stages of dvc pipeline sequentially) with the added functionality of tracking the experiment's specific parameters and metrics. Each run will be considered as an experiment by DVC.
+    a. Though "dvc exp run" will track params.yaml and metrics.json even without dvclive code block but dvclive simplifies the tracking as we specifically mention things to track.
+    b. A dvclive directory gets created (as we have dvclive code block) which tracks parameters and metrics there.
+4. Either run "dvc exp show" to see a comaprison of experiments OR Install "DVC" extension from VSCode extensions (if not already installed) then click on DVC logo in right side to see a visual comparison of all experiments. 
+5. (Optional) To delete a specific experiment -- "dvc exp remove {exp-name}". And to reproduce one specific previous exp -- "dvc exp apply {exp-name}".
+6. Push current state of code to git.
+
+Adding a remote S3 storage to DVC and pushing the data to S3 bucket:
+1. Login to AWs console
+2. Create one IAM user (and separately note down access key and secret access key)
+3. Create one S3 bucket (note down the unique bucket namethat we created)
+4. pip install these :
+    a. pip install dvc-s3
+    b. pip install awscli
+5. Configure AWS to porject by running this command in terminal -- "aws configure".
+6. Switch to one specific experiment which seemed most promising by running this command -- "dvc exp apply {exp-name}"
+7. Add S3 bucket to DVC to push data to remote -- dvc remote add -d myremotedata s3://{bucketname}
+    # Probably each experiment requires a separate adding of S3 bucket so first switch to exp then add remote
+    # No need to do "dvc add mydata/" because dvc atomatically tracks outputs using dvc.yaml's outputs
+8. Push the data to S3 bucket -- "dvc commit" and "dvc push" 
+9. Do git push current state of code.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------------------
+
+params.yaml setup:
+1> import yaml
+2> add func:
+def load_params(params_path: str) -> dict:
+    """Load parameters from a YAML file."""
+    try:
+        with open(params_path, 'r') as file:
+            params = yaml.safe_load(file)
+        logger.debug('Parameters retrieved from %s', params_path)
+        return params
+    except FileNotFoundError:
+        logger.error('File not found: %s', params_path)
+        raise
+    except yaml.YAMLError as e:
+        logger.error('YAML error: %s', e)
+        raise
+    except Exception as e:
+        logger.error('Unexpected error: %s', e)
+        raise
+3> Add to main():
+
+# data_ingestion
+params = load_params(params_path='params.yaml')
+test_size = params['data_ingestion']['test_size']
+
+# feature_engineering
+params = load_params(params_path='params.yaml')
+max_features = params['feature_engineering']['max_features']
+
+# model_building
+params = load_params('params.yaml')['model_building']
+
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+
+dvclive code block in model_evaluation.py:
+1> import yaml and Live from dvclive:
+from dvclive import Live
+import yaml
+2> Add the load_params function and initiate "params" var in main
+3> Add below code block to main:
+with Live(save_dvc_exp=True) as live:
+    live.log_metric('accuracy', accuracy_score(y_test, y_test))
+    live.log_metric('precision', precision_score(y_test, y_test))
+    live.log_metric('recall', recall_score(y_test, y_test))
+
+    live.log_params(params)

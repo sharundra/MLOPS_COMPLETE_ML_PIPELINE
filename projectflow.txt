@@ -27,6 +27,23 @@ Experiments with DVC:
 5. (Optional) To delete a specific experiment -- "dvc exp remove {exp-name}". And to reproduce one specific previous exp -- "dvc exp apply {exp-name}".
 6. Push current state of code to git.
 
+Adding a remote S3 storage to DVC and pushing the data to S3 bucket:
+1. Login to AWs console
+2. Create one IAM user (and separately note down access key and secret access key)
+3. Create one S3 bucket (note down the unique bucket namethat we created)
+4. pip install these :
+    a. pip install dvc-s3
+    b. pip install awscli
+5. Configure AWS to porject by running this command in terminal -- "aws configure".
+6. Switch to one specific experiment which seemed most promising by running this command -- "dvc exp apply {exp-name}"
+7. Add S3 bucket to DVC to push data to remote -- dvc remote add -d myremotedata s3://{bucketname}
+    # Probably each experiment requires a separate adding of S3 bucket so first switch to exp then add remote
+    # No need to do "dvc add mydata/" because dvc atomatically tracks outputs using dvc.yaml's outputs
+8. Push the data to S3 bucket -- "dvc commit" and "dvc push" 
+9. Do git push current state of code.
+
+
+
 
 
 

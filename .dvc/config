@@ -1,0 +1,4 @@
+[core]
+    remote = myremotedata
+['remote "myremotedata"']
+    url = s3://dvc-tests-bucket
